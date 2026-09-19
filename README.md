@@ -1,48 +1,69 @@
 # 伤寒论 Runbook
 
 > 面向初学者的《伤寒论》Web 学习平台与 Runbook 手册。  
-> 用“学习地图 + 方证卡片 + Troubleshooting Runbook”的方式，降低经典入门门槛。
+> 用“六经地图 → 核心条文 → 方证关系 → Runbook 推演”的方式降低经典入门门槛。
 
-## v0.1 已实现
+## v0.2
+
+v0.2 从展示型 Demo 升级为可检索、可关联、可推演的学习知识库。
+
+### 已实现
 
 - 📖 六经学习地图：太阳、阳明、少阳、太阴、少阴、厥阴
-- 💊 经典方证卡片：桂枝汤、麻黄汤、葛根汤、小柴胡汤、白虎汤、五苓散
-- 🧭 交互式 Runbook：训练“看到症状后下一步还要问什么”
+- 📜 核心条文库：原文、自编白话解释、关键词、六经归属、证候 / 方证关联、详情页
+- 🔎 条文全文搜索与六经筛选
+- 🧠 六经 → 条文 → 方证知识关系图
+- 💊 方证卡片
+- 🧭 树状交互 Runbook：单步追问、分支、回退、重置、推荐条文
 - 📱 响应式 Web UI
 - 🐳 Docker 多阶段镜像
-- 🚀 GitHub Actions 自动构建并推送 GHCR
-- 🩺 明确的医疗安全边界：学习工具，不作为诊断或处方系统
+- ✅ PR Next.js Build 检查
+- 🚀 main 合并后自动构建 amd64/arm64 镜像并推送 GHCR
+- 🩺 明确医疗安全边界：学习工具，不作为诊断或处方系统
 
-## 学习设计
+## 学习方式
 
-本项目不把《伤寒论》做成“症状输入 → 自动开方”的工具，而是训练初学者建立判断过程：
+推荐顺序：
+
+```text
+① 六经地图
+     ↓
+② 核心条文
+     ↓
+③ 关键词与白话理解
+     ↓
+④ 条文 ↔ 方证关系
+     ↓
+⑤ Runbook 分支推演
+     ↓
+⑥ 回到原文复习
+```
+
+项目不会设计成：
+
+```text
+输入症状 → 自动诊断 → 自动开方
+```
+
+而是：
 
 ```text
 看到一个表现
    ↓
-还需要补充哪些信息？
+下一步还应该观察什么？
    ↓
-属于哪一条六经学习路径？
+哪些经典条文值得对照？
    ↓
-对照经典方证
-   ↓
-回到条文理解关键词
+这个条文在六经体系中的位置是什么？
 ```
 
-例如太阳病入门：
+## v0.2 条文库
 
-```text
-恶寒 / 发热
-    ↓
-是否出汗？
- ┌──┴──┐
-有汗   无汗
- ↓      ↓
-桂枝汤  麻黄汤
-学习线索 学习线索
-```
+当前先收录六经核心代表条文，作为学习索引，并持续扩展。
 
-> 上述流程只表示经典学习关系，不构成疾病诊断或用药建议。
+条文编号采用常见宋本编号体系。不同整理本在编号、异体字、个别文字上可能有差异，因此本站明确定位为 **学习工具，不是古籍校勘本**。
+
+古籍原文建议同时交叉核对可靠的纸质整理本或公开古籍来源。本站白话解释为项目学习用途自行整理，不直接搬用现代注本。
 
 ## 技术栈
 
@@ -52,18 +73,30 @@
 - 原生 CSS
 - Docker
 - GitHub Actions
-- GitHub Container Registry (GHCR)
+- GitHub Container Registry
+
+## 页面
+
+| 页面 | 作用 |
+| --- | --- |
+| `/` | 学习首页 |
+| `/learn` | 六经学习 |
+| `/clauses` | 条文搜索与筛选 |
+| `/clauses/[id]` | 原文 / 白话 / 关系详情 |
+| `/formulas` | 方证卡片 |
+| `/map` | 六经 → 条文 → 方证关系图 |
+| `/runbook` | 树状学习 Runbook |
 
 ## 本地开发
 
-要求 Node.js 22+。
+Node.js 22+：
 
 ```bash
 npm install
 npm run dev
 ```
 
-浏览器访问：
+访问：
 
 ```text
 http://localhost:3000
@@ -78,25 +111,27 @@ npm start
 
 ## Docker
 
-本地构建：
-
 ```bash
 docker build -t shanghan-runbook:local .
-docker run --rm -p 3000:3000 shanghan-runbook:local
+
+docker run --rm \
+  -p 3000:3000 \
+  shanghan-runbook:local
 ```
 
-### GHCR
+## GHCR
 
-`main` 分支提交后 GitHub Actions 会自动构建：
+main 分支成功构建后发布：
 
 ```text
 ghcr.io/boxker/shanghan-runbook:latest
 ```
 
-拉取：
+部署：
 
 ```bash
 docker pull ghcr.io/boxker/shanghan-runbook:latest
+
 docker run -d \
   --name shanghan-runbook \
   --restart unless-stopped \
@@ -104,86 +139,103 @@ docker run -d \
   ghcr.io/boxker/shanghan-runbook:latest
 ```
 
-如果 GHCR Package 设置为 private，需要先登录：
+镜像支持：
+
+- `linux/amd64`
+- `linux/arm64`
+
+如果 Package 为 Private：
 
 ```bash
 echo "$GHCR_TOKEN" | docker login ghcr.io -u boxker --password-stdin
 ```
 
-Release Tag（例如 `v0.1.0`）也会生成对应版本镜像标签。
+## CI/CD
 
-## GitHub Actions 镜像规则
+Pull Request：
 
-触发条件：
+```text
+npm install
+    ↓
+npm run build
+```
 
-- push 到 `main`
-- push `v*` tag
-- 手动 `workflow_dispatch`
+合并到 main：
 
-目标平台：
+```text
+GitHub Actions
+      ↓
+Docker Buildx
+      ↓
+amd64 + arm64
+      ↓
+GHCR
+```
 
-- `linux/amd64`
-- `linux/arm64`
+镜像标签：
 
-Workflow 使用仓库自带的 `GITHUB_TOKEN` 登录 GHCR，一般无需额外创建 Registry 密钥；仓库 Actions 权限需要允许 `packages: write`。
+```text
+latest
+main
+sha-xxxxxxx
+vX.Y.Z
+```
 
 ## 项目结构
 
 ```text
 .
 ├── app/
-│   ├── page.tsx
-│   ├── globals.css
-│   ├── learn/
+│   ├── clauses/
+│   │   ├── page.tsx
+│   │   └── [id]/
 │   ├── formulas/
-│   └── runbook/
+│   ├── learn/
+│   ├── map/
+│   ├── runbook/
+│   ├── globals.css
+│   └── page.tsx
+├── components/
+│   └── ClauseExplorer.tsx
 ├── data/
-│   └── content.ts
+│   ├── clauses.ts
+│   ├── content.ts
+│   └── runbook.ts
 ├── .github/workflows/
-│   └── docker.yml
-├── Dockerfile
-├── next.config.mjs
-└── package.json
+│   ├── docker.yml
+│   └── pr-check.yml
+└── Dockerfile
 ```
 
 ## Roadmap
 
-### v0.2：条文学习
+### v0.3：扩充经典知识库
 
-- 原文 / 白话解释双栏
-- 条文关键词高亮
-- 条文 ↔ 六经 ↔ 方证关联
-- 原文搜索
-- 学习收藏
-
-### v0.3：完整 Runbook
-
-- 发热
-- 恶寒 / 恶风
-- 有汗 / 无汗
-- 寒热往来
-- 口渴
-- 呕吐
-- 下利
-- 小便异常
-- 手足厥冷
-- 状态变化与误治学习
+- 扩展太阳篇条文
+- 六经核心条文逐步补齐
+- 条文前后文导航
+- 方剂详情页面
+- 药物组成仅作古籍知识展示
+- 证候关键词索引
+- 条文来源与校审状态
 
 ### v0.4：学习系统
 
-- 病例推演
+- 病例式学习题
 - 方证匹配题
 - 六经测验
 - 错题本
-- 学习进度
+- 本地学习进度
+- 收藏条文
 
 ### v0.5：内容工程化
 
-- 内容迁移 Markdown / MDX
-- 内容校审状态
-- 参考文献与版本来源
+- Markdown / MDX 内容化
+- 内容 Schema 校验
+- 来源版本字段
+- 内容 Review 流程
 - 社区贡献规范
-- 内容变更审查
+- 自动检查断链和关联关系
 
 ## 医疗安全声明
 
@@ -192,12 +244,9 @@ Workflow 使用仓库自带的 `GITHUB_TOKEN` 登录 GHCR，一般无需额外�
 它：
 
 - 不提供疾病诊断；
-- 不根据个人症状自动生成处方；
-- 不建议用户自行服用麻黄、附子等存在明确风险的药物；
+- 不根据个人症状生成医疗结论；
+- 不根据 Runbook 自动生成处方；
+- 不建议自行使用麻黄、附子等存在明确风险的药物；
 - 不替代医生、急诊或其他专业医疗服务。
 
-真实疾病可能出现与经典条文相似的表现，但不能因此认为两者具有一一对应关系。
-
-## License
-
-项目代码的开源许可证可在后续版本确定；引用、整理古籍文本时需要同时注明所使用的现代整理本、注释本或其他资料来源。
+真实疾病可能出现与古籍条文相似的表现，但两者不能据此建立一一对应关系。
