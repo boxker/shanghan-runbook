@@ -1,71 +1,50 @@
 import Link from "next/link";
 import { channels } from "@/data/content";
-import { getClauses, getFormulas, getKeywordIndex } from "@/lib/content";
+import { getClauses, getComparisons, getFormulas, getKeywordIndex, getReviewSummary } from "@/lib/content";
 
 export default function Home() {
   const clauses = getClauses();
   const formulas = getFormulas();
   const keywords = getKeywordIndex();
+  const comparisons = getComparisons();
+  const review = getReviewSummary();
+  const taiyang = clauses.filter((item) => item.channel === "太阳");
 
   return (
     <>
       <section className="hero">
-        <span className="eyebrow">《伤寒论》初学者学习工具 · v0.3</span>
-        <h1>内容可信，关系清楚，才能真正长期学下去</h1>
+        <span className="eyebrow">《伤寒论》初学者学习工具 · v0.3.1</span>
+        <h1>太阳篇扩充，内容状态公开，方剂开始真正“对着学”</h1>
         <p>
-          v0.3 把条文和方剂迁入 MDX 内容库，补上来源、校审状态、前后文导航与关键词索引，
-          并把方剂从“卡片”升级成可追溯的详情页。
+          本版把太阳篇扩展到更完整的代表条文链路，同时把“草稿 → 初校 → 已校”
+          变成可执行的审核流程，并新增方剂两两对比页面。
         </p>
         <div className="actions">
-          <Link className="button primary" href="/clauses">搜索条文</Link>
-          <Link className="button" href="/formulas">查看方剂</Link>
-          <Link className="button" href="/keywords">关键词索引</Link>
-          <Link className="button" href="/runbook">开始 Runbook</Link>
+          <Link className="button primary" href="/clauses?q=太阳">学习太阳篇</Link>
+          <Link className="button" href="/comparisons">方剂对比</Link>
+          <Link className="button" href="/review">内容审核</Link>
+          <Link className="button" href="/runbook">Runbook</Link>
         </div>
         <div className="heroStats">
-          <div><strong>{clauses.length}</strong><span>MDX 条文</span></div>
+          <div><strong>{taiyang.length}</strong><span>太阳篇条文</span></div>
           <div><strong>{formulas.length}</strong><span>方剂详情</span></div>
-          <div><strong>{keywords.length}</strong><span>关键词</span></div>
-          <div><strong>{channels.length}</strong><span>六经章节</span></div>
+          <div><strong>{comparisons.length}</strong><span>方剂对比</span></div>
+          <div><strong>{review.counts.草稿}/{review.counts.初校}/{review.counts.已校}</strong><span>草稿 / 初校 / 已校</span></div>
         </div>
       </section>
 
       <section>
         <div className="sectionTitle">
-          <div><span className="eyebrow">v0.3 WORKFLOW</span><h2>从“看懂”升级到“可追溯”</h2></div>
-        </div>
-        <div className="grid four">
-          <Link className="card pathCard" href="/clauses">
-            <span className="number">01</span><h3>读条文</h3>
-            <p>原文、白话、关键词、来源与校审状态放在同一页。</p>
-          </Link>
-          <Link className="card pathCard" href="/formulas">
-            <span className="number">02</span><h3>看方剂</h3>
-            <p>从代表条文进入方剂详情，再做同路径对比。</p>
-          </Link>
-          <Link className="card pathCard" href="/keywords">
-            <span className="number">03</span><h3>反查关键词</h3>
-            <p>从恶寒、汗出、口渴、脉沉等概念回到相关条文。</p>
-          </Link>
-          <Link className="card pathCard" href="/runbook">
-            <span className="number">04</span><h3>Runbook 复习</h3>
-            <p>用分支追问训练观察顺序，再回到原文核对。</p>
-          </Link>
-        </div>
-      </section>
-
-      <section>
-        <div className="sectionTitle">
-          <div><span className="eyebrow">TAIYANG EXPANSION</span><h2>太阳篇第一批扩充</h2></div>
-          <Link href="/clauses?q=太阳">查看太阳相关 →</Link>
+          <div><span className="eyebrow">TAIYANG · v0.3.1</span><h2>太阳篇从几个点，变成一条学习链</h2></div>
+          <Link href="/clauses?q=太阳">查看全部太阳条文 →</Link>
         </div>
         <div className="grid three">
-          {clauses.filter((item) => item.channel === "太阳").slice(0, 6).map((item) => (
+          {taiyang.slice(0, 9).map((item) => (
             <Link className="card clausePreview" href={`/clauses/${item.id}`} key={item.id}>
               <div className="clauseMeta">
                 <span className="clauseNo">#{item.number}</span>
                 <span className="tag">{item.channel}</span>
-                <span className="reviewBadge">{item.reviewStatus}</span>
+                <span className="reviewBadge" data-status={item.reviewStatus}>{item.reviewStatus}</span>
               </div>
               <h3>{item.title}</h3>
               <p>{item.original}</p>
@@ -74,10 +53,69 @@ export default function Home() {
         </div>
       </section>
 
+      <section>
+        <div className="sectionTitle">
+          <div><span className="eyebrow">PAIRWISE LEARNING</span><h2>不要孤立背方，直接看差异</h2></div>
+          <Link href="/comparisons">全部方剂对比 →</Link>
+        </div>
+        <div className="grid three">
+          {comparisons.slice(0, 6).map((item) => (
+            <Link className="card comparisonMini" href={`/comparisons/${item.slug}`} key={item.slug}>
+              <span className="reviewBadge" data-status={item.reviewStatus}>{item.reviewStatus}</span>
+              <h3>{item.title}</h3>
+              <p>{item.summary}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <div className="sectionTitle">
+          <div><span className="eyebrow">REVIEW PIPELINE</span><h2>发布不等于已校</h2></div>
+          <Link href="/review">查看审核看板 →</Link>
+        </div>
+        <div className="grid three">
+          <article className="card">
+            <span className="reviewBadge" data-status="草稿">草稿</span>
+            <h3>先进入知识库</h3>
+            <p>新扩充内容允许先上线学习，但明确标记为待初校，不隐瞒成熟度。</p>
+          </article>
+          <article className="card">
+            <span className="reviewBadge" data-status="初校">初校</span>
+            <h3>完成第一轮核对</h3>
+            <p>核对原文、编号、来源和关联关系，并记录审核日期。</p>
+          </article>
+          <article className="card">
+            <span className="reviewBadge" data-status="已校">已校</span>
+            <h3>独立人工复核</h3>
+            <p>必须额外填写 verifiedBy；CI 会阻止没有复核人的内容冒充已校。</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div className="sectionTitle">
+          <div><span className="eyebrow">INDEX</span><h2>继续从关系进入</h2></div>
+        </div>
+        <div className="grid four">
+          <Link className="card pathCard" href="/learn">
+            <span className="number">01</span><h3>六经地图</h3><p>{channels.length} 个六经章节。</p>
+          </Link>
+          <Link className="card pathCard" href="/keywords">
+            <span className="number">02</span><h3>关键词</h3><p>{keywords.length} 个关键词反查入口。</p>
+          </Link>
+          <Link className="card pathCard" href="/formulas">
+            <span className="number">03</span><h3>方剂库</h3><p>{formulas.length} 个可追溯方剂条目。</p>
+          </Link>
+          <Link className="card pathCard" href="/map">
+            <span className="number">04</span><h3>知识地图</h3><p>六经 → 条文 → 方剂关系。</p>
+          </Link>
+        </div>
+      </section>
+
       <aside className="notice">
         <strong>学习边界：</strong>
-        本项目用于《伤寒论》经典学习与知识整理。来源和校审字段用于提高可追溯性，
-        并不意味着本站内容可以替代现代医疗诊断或成为个人用药依据。
+        草稿、初校、已校是本站内容工程状态，不代表医学权威认证；方剂对比也不构成个人诊断或用药建议。
       </aside>
     </>
   );
