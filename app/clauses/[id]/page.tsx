@@ -39,7 +39,7 @@ export default async function ClauseDetailPage({
         <div className="clauseMeta">
           <span className="clauseNo">#{clause.number}</span>
           <span className="tag">{clause.channel}</span>
-          <span className="reviewBadge">{clause.reviewStatus}</span>
+          <span className="reviewBadge" data-status={clause.reviewStatus}>{clause.reviewStatus}</span>
           {clause.pattern && <span className="relationTag">{clause.pattern}</span>}
         </div>
         <h1>{clause.title}</h1>
@@ -75,7 +75,8 @@ export default async function ClauseDetailPage({
           <div><dt>公开核对来源</dt><dd><a href={clause.sourceUrl} target="_blank" rel="noreferrer">{clause.sourceName} ↗</a></dd></div>
           <div><dt>底本说明</dt><dd>{clause.sourceEdition}</dd></div>
           <div><dt>校审状态</dt><dd>{clause.reviewStatus}</dd></div>
-          <div><dt>最近校审</dt><dd>{clause.reviewedAt}</dd></div>
+          <div><dt>最近校审</dt><dd>{clause.reviewedAt || "等待初校"}</dd></div>
+          <div><dt>独立复核</dt><dd>{clause.verifiedBy || "尚未进入已校"}</dd></div>
         </dl>
       </section>
 
@@ -123,7 +124,10 @@ export default async function ClauseDetailPage({
           <div className="grid two">
             {related.map((item) => (
               <Link className="card miniClause" href={`/clauses/${item.id}`} key={item.id}>
-                <span className="clauseNo">#{item.number}</span>
+                <div className="clauseMeta">
+                  <span className="clauseNo">#{item.number}</span>
+                  <span className="reviewBadge" data-status={item.reviewStatus}>{item.reviewStatus}</span>
+                </div>
                 <h3>{item.title}</h3>
                 <p>{item.original}</p>
               </Link>
