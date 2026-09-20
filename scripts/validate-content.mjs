@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const ROOT = path.join(process.cwd(), "content");
+const RUNBOOK_FILE = path.join(process.cwd(), "data", "runbook.ts");
 const statuses = new Set(["草稿", "初校", "已校"]);
 let errors = [];
 
@@ -79,6 +80,7 @@ for (const doc of clauseDocs) {
   clauseNumbers.add(Number(m.number));
   if (!Array.isArray(m.keywords) || m.keywords.length === 0) errors.push(`${doc.file}: keywords must be a non-empty array`);
   if (!String(m.sourceUrl || "").startsWith("https://")) errors.push(`${doc.file}: sourceUrl must use https`);
+  if (m.variantNotes !== undefined && typeof m.variantNotes !== "string") errors.push(`${doc.file}: variantNotes must be a string`);
   validateReview(doc.file, m);
 }
 
@@ -111,9 +113,14 @@ for (const doc of comparisonDocs) {
   for (const key of ["slug","title","leftSlug","rightSlug","points","reviewStatus"]) {
     if (m[key] === undefined || m[key] === "") errors.push(`${doc.file}: missing ${key}`);
   }
-  for (const section of ["一句话","辨别顺序","安全提示"]) {
+  for (const section of ["一句话","为什么容易混淆","辨别顺序","学习题","安全提示"]) {
     if (!doc.sections[section]) errors.push(`${doc.file}: missing section ## ${section}`);
   }
+  const questions = String(doc.sections["学习题"] || "")
+    .split("\n")
+    .map(line => line.trim())
+    .filter(Boolean);
+  if (questions.length < 3) errors.push(`${doc.file}: 学习题 requires at least three questions`);
   if (comparisonSlugs.has(String(m.slug))) errors.push(`${doc.file}: duplicate comparison slug ${m.slug}`);
   comparisonSlugs.add(String(m.slug));
   if (!formulaSlugs.has(String(m.leftSlug))) errors.push(`${doc.file}: missing left formula ${m.leftSlug}`);
@@ -127,6 +134,31 @@ for (const doc of comparisonDocs) {
     }
   }
   validateReview(doc.file, m);
+}
+
+if (fs.existsSync(RUNBOOK_FILE)) {
+  const runbook = fs.readFileSync(RUNBOOK_FILE, "utf8");
+  const nodeIds = new Set(
+    [...runbook.matchAll(/^  (?:"([^"]+)"|([A-Za-z0-9_-]+)):\s*\{/gm)]
+      .map(match => match[1] || match[2])
+  );
+
+  for (const match of runbook.matchAll(/\b(?:yes|no):\s*"([^"]+)"/g)) {
+    const target = match[1];
+    if (!nodeIds.has(target)) errors.push(`data/runbook.ts: references missing node ${target}`);
+  }
+
+  for (const match of runbook.matchAll(/formulaSlug:\s*"([^"]+)"/g)) {
+    const slug = match[1];
+    if (!formulaSlugs.has(slug)) errors.push(`data/runbook.ts: references missing formula ${slug}`);
+  }
+
+  for (const match of runbook.matchAll(/clauseIds:\s*\[([^\]]*)\]/g)) {
+    const ids = [...match[1].matchAll(/"([^"]+)"/g)].map(item => item[1]);
+    for (const id of ids) {
+      if (!clauseIds.has(id)) errors.push(`data/runbook.ts: references missing clause ${id}`);
+    }
+  }
 }
 
 if (errors.length) {

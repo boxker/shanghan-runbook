@@ -74,6 +74,7 @@ export default async function ClauseDetailPage({
         <dl>
           <div><dt>公开核对来源</dt><dd><a href={clause.sourceUrl} target="_blank" rel="noreferrer">{clause.sourceName} ↗</a></dd></div>
           <div><dt>底本说明</dt><dd>{clause.sourceEdition}</dd></div>
+          <div><dt>异文说明</dt><dd>{clause.variantNotes || "当前未记录明确异文；后续校审如发现版本差异会在此补充。"}</dd></div>
           <div><dt>校审状态</dt><dd>{clause.reviewStatus}</dd></div>
           <div><dt>最近校审</dt><dd>{clause.reviewedAt || "等待初校"}</dd></div>
           <div><dt>独立复核</dt><dd>{clause.verifiedBy || "尚未进入已校"}</dd></div>

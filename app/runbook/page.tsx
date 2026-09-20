@@ -35,7 +35,7 @@ export default function RunbookPage() {
   return (
     <>
       <section className="pageHead">
-        <span className="eyebrow">INTERACTIVE RUNBOOK · v0.2</span>
+        <span className="eyebrow">INTERACTIVE RUNBOOK · v0.3.2</span>
         <h1>像排障一样练辨证思路</h1>
         <p>
           每一步只问一个问题，让你练习“下一步应该继续观察什么”。结果是学习路径，
@@ -63,7 +63,13 @@ export default function RunbookPage() {
 
             <div className="resultRelations">
               {node.result.channel && <span className="tag">{node.result.channel}</span>}
-              {node.result.formula && <span className="relationTag">{node.result.formula}</span>}
+              {node.result.formula && (
+                node.result.formulaSlug ? (
+                  <Link className="relationTag" href={`/formulas/${node.result.formulaSlug}`}>
+                    {node.result.formula}
+                  </Link>
+                ) : <span className="relationTag">{node.result.formula}</span>
+              )}
             </div>
 
             {!!node.result.clauseIds?.length && (

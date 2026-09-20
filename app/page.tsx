@@ -13,11 +13,11 @@ export default function Home() {
   return (
     <>
       <section className="hero">
-        <span className="eyebrow">《伤寒论》初学者学习工具 · v0.3.1</span>
-        <h1>太阳篇扩充，内容状态公开，方剂开始真正“对着学”</h1>
+        <span className="eyebrow">《伤寒论》初学者学习工具 · v0.3.2</span>
+        <h1>异文可追踪，Runbook 更完整，对比页开始“练着学”</h1>
         <p>
-          本版把太阳篇扩展到更完整的代表条文链路，同时把“草稿 → 初校 → 已校”
-          变成可执行的审核流程，并新增方剂两两对比页面。
+          本版继续收紧内容工程：条文可以记录异文说明，Runbook 关联更多太阳篇分叉，
+          方剂对比加入“为什么容易混淆”和学习题，并补充太阳篇后续代表方。
         </p>
         <div className="actions">
           <Link className="button primary" href="/clauses?q=太阳">学习太阳篇</Link>
@@ -35,7 +35,7 @@ export default function Home() {
 
       <section>
         <div className="sectionTitle">
-          <div><span className="eyebrow">TAIYANG · v0.3.1</span><h2>太阳篇从几个点，变成一条学习链</h2></div>
+          <div><span className="eyebrow">TAIYANG · v0.3.2</span><h2>太阳篇从几个点，变成一条学习链</h2></div>
           <Link href="/clauses?q=太阳">查看全部太阳条文 →</Link>
         </div>
         <div className="grid three">

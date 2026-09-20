@@ -59,14 +59,36 @@ export default async function ComparisonDetailPage({
 
       <div className="grid two">
         <article className="studyPanel">
+          <span className="panelLabel">为什么容易混淆</span>
+          <p>{comparison.confusion}</p>
+        </article>
+        <article className="studyPanel">
           <span className="panelLabel">辨别顺序</span>
           <p>{comparison.decisionGuide}</p>
         </article>
-        <article className="studyPanel">
-          <span className="panelLabel">安全边界</span>
-          <p>{comparison.safety}</p>
-        </article>
       </div>
+
+      {!!comparison.questions.length && (
+        <section>
+          <div className="sectionTitle">
+            <div><span className="eyebrow">SELF CHECK</span><h2>学习题：先回答，再回原文</h2></div>
+          </div>
+          <div className="grid three">
+            {comparison.questions.map((question, index) => (
+              <article className="card" key={question}>
+                <span className="number">0{index + 1}</span>
+                <h3>{question}</h3>
+                <p>不要凭方名作答，先回到对比维度和代表条文寻找依据。</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <article className="studyPanel">
+        <span className="panelLabel">安全边界</span>
+        <p>{comparison.safety}</p>
+      </article>
 
       <section className="compareClauseLinks">
         <div className="sectionTitle">

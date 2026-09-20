@@ -7,7 +7,7 @@ const ROOT = path.join(process.cwd(), "content");
 export const channelOrder = ["太阳", "阳明", "少阳", "太阴", "少阴", "厥阴"] as const;
 
 export const clauseSourceNote =
-  "v0.3.1 起，条文、方剂与对比内容均进入明确审核流：草稿 → 初校 → 已校。草稿表示尚待第一次正式核对；初校表示完成一轮来源/文字检查；已校必须额外记录独立复核人。";
+  "v0.3.2 起，条文可额外记录异文说明；草稿 → 初校 → 已校的审核流保持不变。异文说明用于记录不同底本、字形、标点或编号差异，不代表项目替某一版本作最终裁断。";
 
 function parseValue(raw: string): unknown {
   const value = raw.trim();
@@ -82,6 +82,7 @@ export function getClauses(): Clause[] {
         sourceName: String(meta.sourceName || ""),
         sourceEdition: String(meta.sourceEdition || ""),
         sourceUrl: String(meta.sourceUrl || ""),
+        variantNotes: meta.variantNotes ? String(meta.variantNotes) : undefined,
         reviewStatus: meta.reviewStatus as Clause["reviewStatus"],
         reviewedAt: String(meta.reviewedAt || ""),
         verifiedBy: meta.verifiedBy ? String(meta.verifiedBy) : undefined,
@@ -139,6 +140,11 @@ export function getComparisons(): FormulaComparison[] {
         points,
         summary: sections["一句话"] || "",
         decisionGuide: sections["辨别顺序"] || "",
+        confusion: sections["为什么容易混淆"] || "",
+        questions: (sections["学习题"] || "")
+          .split("\n")
+          .map((line) => line.trim().replace(/^[-*]\s+/, ""))
+          .filter(Boolean),
         safety: sections["安全提示"] || "",
         reviewStatus: meta.reviewStatus as FormulaComparison["reviewStatus"],
         reviewedAt: String(meta.reviewedAt || ""),
