@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const ROOT = path.join(process.cwd(), "content");
+const RUNBOOK_FILE = path.join(process.cwd(), "data", "runbook.ts");
 const statuses = new Set(["草稿", "初校", "已校"]);
 let errors = [];
 
@@ -133,6 +134,31 @@ for (const doc of comparisonDocs) {
     }
   }
   validateReview(doc.file, m);
+}
+
+if (fs.existsSync(RUNBOOK_FILE)) {
+  const runbook = fs.readFileSync(RUNBOOK_FILE, "utf8");
+  const nodeIds = new Set(
+    [...runbook.matchAll(/^  (?:"([^"]+)"|([A-Za-z0-9_-]+)):\s*\{/gm)]
+      .map(match => match[1] || match[2])
+  );
+
+  for (const match of runbook.matchAll(/\b(?:yes|no):\s*"([^"]+)"/g)) {
+    const target = match[1];
+    if (!nodeIds.has(target)) errors.push(`data/runbook.ts: references missing node ${target}`);
+  }
+
+  for (const match of runbook.matchAll(/formulaSlug:\s*"([^"]+)"/g)) {
+    const slug = match[1];
+    if (!formulaSlugs.has(slug)) errors.push(`data/runbook.ts: references missing formula ${slug}`);
+  }
+
+  for (const match of runbook.matchAll(/clauseIds:\s*\[([^\]]*)\]/g)) {
+    const ids = [...match[1].matchAll(/"([^"]+)"/g)].map(item => item[1]);
+    for (const id of ids) {
+      if (!clauseIds.has(id)) errors.push(`data/runbook.ts: references missing clause ${id}`);
+    }
+  }
 }
 
 if (errors.length) {
