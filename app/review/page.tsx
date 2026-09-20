@@ -26,7 +26,7 @@ export default function ReviewPage() {
   return (
     <>
       <section className="pageHead">
-        <span className="eyebrow">CONTENT REVIEW · v0.3.1</span>
+        <span className="eyebrow">CONTENT REVIEW · v0.3.2</span>
         <h1>内容审核状态</h1>
         <p>
           页面是否上线和内容是否完成校审是两回事。这里公开展示每条内容当前处于
