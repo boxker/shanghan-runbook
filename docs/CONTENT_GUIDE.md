@@ -43,9 +43,9 @@ verifiedBy: ""
 ## 初学提示
 
 ...
+```
 
 `variantNotes` 是可选字段，用来记录版本差异。它不替代 `sourceEdition`：前者说明“哪里不同”，后者说明“当前页面以哪个底本/版本为核对目标”。
-```
 
 ## Formula
 
