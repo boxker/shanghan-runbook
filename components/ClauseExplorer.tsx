@@ -43,7 +43,7 @@ export default function ClauseExplorer({
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="试试：恶寒、汗出、小青龙汤、脉沉……"
+            placeholder="试试：恶寒、汗出、大青龙汤、脉浮紧……"
           />
         </label>
         <div className="filterRow">
@@ -67,7 +67,7 @@ export default function ClauseExplorer({
             <div className="clauseMeta">
               <span className="clauseNo">#{item.number}</span>
               <span className="tag">{item.channel}</span>
-              <span className="reviewBadge">{item.reviewStatus}</span>
+              <span className="reviewBadge" data-status={item.reviewStatus}>{item.reviewStatus}</span>
               {item.formula && <span className="relationTag">关联 {item.formula}</span>}
             </div>
             <h2>{item.title}</h2>
