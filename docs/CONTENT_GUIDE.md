@@ -1,6 +1,6 @@
 # Content Guide
 
-v0.3.1 使用 MDX-compatible 文本文件作为内容单一事实源。当前解析器使用 YAML-like frontmatter + 固定 Markdown 二级标题，不执行 JSX。
+v0.3.2 使用 MDX-compatible 文本文件作为内容单一事实源。当前解析器使用 YAML-like frontmatter + 固定 Markdown 二级标题，不执行 JSX。
 
 ## 内容类型
 
@@ -26,6 +26,7 @@ formulaSlug: "gui-zhi-jia-ge-gen-tang"
 sourceName: "..."
 sourceEdition: "..."
 sourceUrl: "https://..."
+variantNotes: "不同底本、字形、标点或编号差异；无明确差异时可省略"
 reviewStatus: "草稿"
 reviewedAt: ""
 verifiedBy: ""
@@ -42,6 +43,8 @@ verifiedBy: ""
 ## 初学提示
 
 ...
+
+`variantNotes` 是可选字段，用来记录版本差异。它不替代 `sourceEdition`：前者说明“哪里不同”，后者说明“当前页面以哪个底本/版本为核对目标”。
 ```
 
 ## Formula
@@ -93,9 +96,19 @@ verifiedBy: ""
 
 ...
 
+## 为什么容易混淆
+
+...
+
 ## 辨别顺序
 
 ...
+
+## 学习题
+
+- 问题 1
+- 问题 2
+- 问题 3
 
 ## 安全提示
 
@@ -108,7 +121,7 @@ verifiedBy: ""
 对比维度|左侧方剂|右侧方剂
 ```
 
-CI 会检查左右方剂是否真实存在，以及每行是否正好有三列。
+CI 会检查左右方剂是否真实存在、每行是否正好有三列，并要求每个对比页至少提供 3 道学习题。
 
 ## Review status
 
