@@ -18,6 +18,7 @@ export type Clause = {
   sourceUrl: string;
   reviewStatus: ReviewStatus;
   reviewedAt: string;
+  verifiedBy?: string;
 };
 
 export type Formula = {
@@ -35,4 +36,35 @@ export type Formula = {
   sourceUrl: string;
   reviewStatus: ReviewStatus;
   reviewedAt: string;
+  verifiedBy?: string;
+};
+
+export type ComparisonPoint = {
+  axis: string;
+  left: string;
+  right: string;
+};
+
+export type FormulaComparison = {
+  slug: string;
+  title: string;
+  leftSlug: string;
+  rightSlug: string;
+  points: ComparisonPoint[];
+  summary: string;
+  decisionGuide: string;
+  safety: string;
+  reviewStatus: ReviewStatus;
+  reviewedAt: string;
+  verifiedBy?: string;
+};
+
+export type ReviewItem = {
+  kind: "条文" | "方剂" | "对比";
+  id: string;
+  title: string;
+  href: string;
+  reviewStatus: ReviewStatus;
+  reviewedAt: string;
+  verifiedBy?: string;
 };
