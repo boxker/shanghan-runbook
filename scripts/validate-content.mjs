@@ -40,18 +40,34 @@ function parse(file) {
 
 function files(dir) {
   const full = path.join(ROOT, dir);
+  if (!fs.existsSync(full)) return [];
   return fs.readdirSync(full).filter(x => x.endsWith(".mdx")).map(x => path.join(full, x));
+}
+
+function validateReview(file, meta) {
+  if (!statuses.has(meta.reviewStatus)) {
+    errors.push(`${file}: invalid reviewStatus ${meta.reviewStatus}`);
+    return;
+  }
+  if (meta.reviewStatus === "初校" && !String(meta.reviewedAt || "").trim()) {
+    errors.push(`${file}: 初校 requires reviewedAt`);
+  }
+  if (meta.reviewStatus === "已校") {
+    if (!String(meta.reviewedAt || "").trim()) errors.push(`${file}: 已校 requires reviewedAt`);
+    if (!String(meta.verifiedBy || "").trim()) errors.push(`${file}: 已校 requires verifiedBy`);
+  }
 }
 
 const clauseDocs = files("clauses").map(file => ({ file, ...parse(file) }));
 const formulaDocs = files("formulas").map(file => ({ file, ...parse(file) }));
+const comparisonDocs = files("comparisons").map(file => ({ file, ...parse(file) }));
 
 const clauseIds = new Set();
 const clauseNumbers = new Set();
 
 for (const doc of clauseDocs) {
   const m = doc.meta;
-  for (const key of ["id","number","channel","title","keywords","sourceName","sourceEdition","sourceUrl","reviewStatus","reviewedAt"]) {
+  for (const key of ["id","number","channel","title","keywords","sourceName","sourceEdition","sourceUrl","reviewStatus"]) {
     if (m[key] === undefined || m[key] === "") errors.push(`${doc.file}: missing ${key}`);
   }
   for (const section of ["原文","白话","初学提示"]) {
@@ -62,14 +78,14 @@ for (const doc of clauseDocs) {
   clauseIds.add(String(m.id));
   clauseNumbers.add(Number(m.number));
   if (!Array.isArray(m.keywords) || m.keywords.length === 0) errors.push(`${doc.file}: keywords must be a non-empty array`);
-  if (!statuses.has(m.reviewStatus)) errors.push(`${doc.file}: invalid reviewStatus ${m.reviewStatus}`);
   if (!String(m.sourceUrl || "").startsWith("https://")) errors.push(`${doc.file}: sourceUrl must use https`);
+  validateReview(doc.file, m);
 }
 
 const formulaSlugs = new Set();
 for (const doc of formulaDocs) {
   const m = doc.meta;
-  for (const key of ["slug","name","channel","clues","composition","clauseIds","sourceName","sourceUrl","reviewStatus","reviewedAt"]) {
+  for (const key of ["slug","name","channel","clues","composition","clauseIds","sourceName","sourceUrl","reviewStatus"]) {
     if (m[key] === undefined || m[key] === "") errors.push(`${doc.file}: missing ${key}`);
   }
   for (const section of ["定位","对比理解","安全提示"]) {
@@ -77,16 +93,40 @@ for (const doc of formulaDocs) {
   }
   if (formulaSlugs.has(String(m.slug))) errors.push(`${doc.file}: duplicate formula slug ${m.slug}`);
   formulaSlugs.add(String(m.slug));
-  if (!statuses.has(m.reviewStatus)) errors.push(`${doc.file}: invalid reviewStatus ${m.reviewStatus}`);
   if (!String(m.sourceUrl || "").startsWith("https://")) errors.push(`${doc.file}: sourceUrl must use https`);
   for (const id of m.clauseIds || []) {
     if (!clauseIds.has(String(id))) errors.push(`${doc.file}: references missing clause ${id}`);
   }
+  validateReview(doc.file, m);
 }
 
 for (const doc of clauseDocs) {
   const slug = doc.meta.formulaSlug;
   if (slug && !formulaSlugs.has(String(slug))) errors.push(`${doc.file}: references missing formula ${slug}`);
+}
+
+const comparisonSlugs = new Set();
+for (const doc of comparisonDocs) {
+  const m = doc.meta;
+  for (const key of ["slug","title","leftSlug","rightSlug","points","reviewStatus"]) {
+    if (m[key] === undefined || m[key] === "") errors.push(`${doc.file}: missing ${key}`);
+  }
+  for (const section of ["一句话","辨别顺序","安全提示"]) {
+    if (!doc.sections[section]) errors.push(`${doc.file}: missing section ## ${section}`);
+  }
+  if (comparisonSlugs.has(String(m.slug))) errors.push(`${doc.file}: duplicate comparison slug ${m.slug}`);
+  comparisonSlugs.add(String(m.slug));
+  if (!formulaSlugs.has(String(m.leftSlug))) errors.push(`${doc.file}: missing left formula ${m.leftSlug}`);
+  if (!formulaSlugs.has(String(m.rightSlug))) errors.push(`${doc.file}: missing right formula ${m.rightSlug}`);
+  if (m.leftSlug === m.rightSlug) errors.push(`${doc.file}: comparison cannot compare a formula with itself`);
+  if (!Array.isArray(m.points) || m.points.length < 2) {
+    errors.push(`${doc.file}: points must contain at least two rows`);
+  } else {
+    for (const row of m.points) {
+      if (String(row).split("|").length !== 3) errors.push(`${doc.file}: invalid comparison point ${row}`);
+    }
+  }
+  validateReview(doc.file, m);
 }
 
 if (errors.length) {
@@ -95,4 +135,7 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Content validation passed: ${clauseDocs.length} clauses, ${formulaDocs.length} formulas.`);
+const reviewCounts = { 草稿: 0, 初校: 0, 已校: 0 };
+for (const doc of [...clauseDocs, ...formulaDocs, ...comparisonDocs]) reviewCounts[doc.meta.reviewStatus] += 1;
+console.log(`Content validation passed: ${clauseDocs.length} clauses, ${formulaDocs.length} formulas, ${comparisonDocs.length} comparisons.`);
+console.log(`Review status: 草稿 ${reviewCounts.草稿}, 初校 ${reviewCounts.初校}, 已校 ${reviewCounts.已校}.`);
