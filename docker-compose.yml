@@ -1,0 +1,12 @@
+services:
+  shanghan-runbook:
+    image: ghcr.io/boxker/shanghan-runbook:latest
+    container_name: shanghan-runbook
+    restart: unless-stopped
+    pull_policy: always
+    ports:
+      - "${SHANGHAN_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
