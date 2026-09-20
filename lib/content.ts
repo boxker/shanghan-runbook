@@ -1,13 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { Clause, Formula } from "./content-types";
+import type { Clause, Formula, FormulaComparison, ReviewItem, ReviewStatus } from "./content-types";
 
 const ROOT = path.join(process.cwd(), "content");
 
 export const channelOrder = ["太阳", "阳明", "少阳", "太阴", "少阴", "厥阴"] as const;
 
 export const clauseSourceNote =
-  "v0.3 起，条文内容由 content/clauses/*.mdx 管理，并记录公开核对来源、底本说明和校审状态。条文编号仍采用常见宋本编号体系作学习索引；不同整理本可能存在编号、异体字和个别文字差异。";
+  "v0.3.1 起，条文、方剂与对比内容均进入明确审核流：草稿 → 初校 → 已校。草稿表示尚待第一次正式核对；初校表示完成一轮来源/文字检查；已校必须额外记录独立复核人。";
 
 function parseValue(raw: string): unknown {
   const value = raw.trim();
@@ -84,6 +84,7 @@ export function getClauses(): Clause[] {
         sourceUrl: String(meta.sourceUrl || ""),
         reviewStatus: meta.reviewStatus as Clause["reviewStatus"],
         reviewedAt: String(meta.reviewedAt || ""),
+        verifiedBy: meta.verifiedBy ? String(meta.verifiedBy) : undefined,
       };
     })
     .sort((a, b) => a.number - b.number);
@@ -112,6 +113,7 @@ export function getFormulas(): Formula[] {
         sourceUrl: String(meta.sourceUrl || ""),
         reviewStatus: meta.reviewStatus as Formula["reviewStatus"],
         reviewedAt: String(meta.reviewedAt || ""),
+        verifiedBy: meta.verifiedBy ? String(meta.verifiedBy) : undefined,
       };
     })
     .sort((a, b) => a.name.localeCompare(b.name, "zh-CN"));
@@ -119,6 +121,41 @@ export function getFormulas(): Formula[] {
 
 export function getFormula(slug: string) {
   return getFormulas().find((item) => item.slug === slug);
+}
+
+export function getComparisons(): FormulaComparison[] {
+  return listMdx("comparisons")
+    .map((filePath) => {
+      const { meta, sections } = parseDocument(filePath);
+      const points = ((meta.points || []) as string[]).map((row) => {
+        const [axis, left, right] = row.split("|");
+        return { axis, left, right };
+      });
+      return {
+        slug: String(meta.slug),
+        title: String(meta.title),
+        leftSlug: String(meta.leftSlug),
+        rightSlug: String(meta.rightSlug),
+        points,
+        summary: sections["一句话"] || "",
+        decisionGuide: sections["辨别顺序"] || "",
+        safety: sections["安全提示"] || "",
+        reviewStatus: meta.reviewStatus as FormulaComparison["reviewStatus"],
+        reviewedAt: String(meta.reviewedAt || ""),
+        verifiedBy: meta.verifiedBy ? String(meta.verifiedBy) : undefined,
+      };
+    })
+    .sort((a, b) => a.title.localeCompare(b.title, "zh-CN"));
+}
+
+export function getComparison(slug: string) {
+  return getComparisons().find((item) => item.slug === slug);
+}
+
+export function getFormulaComparisons(formulaSlug: string) {
+  return getComparisons().filter(
+    (item) => item.leftSlug === formulaSlug || item.rightSlug === formulaSlug
+  );
 }
 
 export function getKeywordIndex() {
@@ -133,4 +170,43 @@ export function getKeywordIndex() {
   return [...map.entries()]
     .map(([keyword, clauses]) => ({ keyword, clauses }))
     .sort((a, b) => b.clauses.length - a.clauses.length || a.keyword.localeCompare(b.keyword, "zh-CN"));
+}
+
+export function getReviewItems(): ReviewItem[] {
+  return [
+    ...getClauses().map((item) => ({
+      kind: "条文" as const,
+      id: item.id,
+      title: `#${item.number} ${item.title}`,
+      href: `/clauses/${item.id}`,
+      reviewStatus: item.reviewStatus,
+      reviewedAt: item.reviewedAt,
+      verifiedBy: item.verifiedBy,
+    })),
+    ...getFormulas().map((item) => ({
+      kind: "方剂" as const,
+      id: item.slug,
+      title: item.name,
+      href: `/formulas/${item.slug}`,
+      reviewStatus: item.reviewStatus,
+      reviewedAt: item.reviewedAt,
+      verifiedBy: item.verifiedBy,
+    })),
+    ...getComparisons().map((item) => ({
+      kind: "对比" as const,
+      id: item.slug,
+      title: item.title,
+      href: `/comparisons/${item.slug}`,
+      reviewStatus: item.reviewStatus,
+      reviewedAt: item.reviewedAt,
+      verifiedBy: item.verifiedBy,
+    })),
+  ];
+}
+
+export function getReviewSummary() {
+  const items = getReviewItems();
+  const counts: Record<ReviewStatus, number> = { 草稿: 0, 初校: 0, 已校: 0 };
+  for (const item of items) counts[item.reviewStatus] += 1;
+  return { items, counts, total: items.length };
 }
