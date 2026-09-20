@@ -16,6 +16,7 @@ export type Clause = {
   sourceName: string;
   sourceEdition: string;
   sourceUrl: string;
+  variantNotes?: string;
   reviewStatus: ReviewStatus;
   reviewedAt: string;
   verifiedBy?: string;
@@ -53,6 +54,8 @@ export type FormulaComparison = {
   points: ComparisonPoint[];
   summary: string;
   decisionGuide: string;
+  confusion: string;
+  questions: string[];
   safety: string;
   reviewStatus: ReviewStatus;
   reviewedAt: string;
