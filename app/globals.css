@@ -366,3 +366,122 @@ section { margin-bottom: 64px; }
   .runbookToolbar { align-items: flex-start; flex-direction: column; }
   .progressTrack { max-width: 80vw; }
 }
+
+
+/* v0.3 traceability */
+.reviewBadge {
+  display: inline-block;
+  padding: 5px 9px;
+  border: 1px solid #c8d3cb;
+  border-radius: 999px;
+  background: #f8faf8;
+  color: #597065;
+  font-size: 12px;
+  font-weight: 800;
+}
+.sourcePanel {
+  display: grid;
+  grid-template-columns: .75fr 1.5fr;
+  gap: 28px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255,255,255,.62);
+}
+.sourcePanel h2 { margin: 7px 0 0; font-family: Georgia, "Noto Serif SC", serif; }
+.sourcePanel dl { margin: 0; display: grid; gap: 13px; }
+.sourcePanel dl > div {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--line);
+}
+.sourcePanel dt { color: var(--muted); font-size: 12px; font-weight: 800; }
+.sourcePanel dd { margin: 0; line-height: 1.7; }
+.sourcePanel a { color: var(--accent); font-weight: 800; }
+
+.adjacentNav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 28px 0 56px;
+}
+.adjacentNav a {
+  display: grid;
+  gap: 7px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255,255,255,.62);
+}
+.adjacentNav a:last-child { text-align: right; }
+.adjacentNav small { color: var(--muted); }
+.adjacentNav strong { font-family: Georgia, "Noto Serif SC", serif; }
+
+.formulaFoot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line);
+  color: var(--muted);
+  font-size: 13px;
+}
+.formulaFoot strong { color: var(--accent); }
+.formulaDetailHead { margin-bottom: 32px; }
+.formulaDetailHead h1 {
+  margin: 16px 0;
+  font: 800 clamp(38px, 5vw, 62px)/1.08 Georgia, "Noto Serif SC", serif;
+}
+.formulaDetailHead p { max-width: 780px; color: var(--muted); line-height: 1.9; font-size: 18px; }
+.formulaDetailGrid { margin-bottom: 60px; }
+.largeChips span { padding: 8px 12px; font-size: 14px; }
+.compositionList {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.compositionList li {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.formulaSafety { margin-top: 22px; }
+
+.keywordGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 34px;
+}
+.keywordCard {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 7px 10px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+}
+.keywordCard:hover { border-color: var(--accent); transform: translateY(-1px); }
+.keywordCard strong { font-family: Georgia, "Noto Serif SC", serif; font-size: 19px; }
+.keywordCard span { color: var(--warm); font-weight: 800; font-size: 12px; }
+.keywordCard small { grid-column: 1 / -1; color: var(--muted); }
+
+@media (max-width: 920px) {
+  .keywordGrid { grid-template-columns: repeat(2, 1fr); }
+  .sourcePanel { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .keywordGrid { grid-template-columns: 1fr; }
+  .sourcePanel dl > div { grid-template-columns: 1fr; gap: 4px; }
+  .adjacentNav { grid-template-columns: 1fr; }
+  .adjacentNav a:last-child { text-align: left; }
+  .compositionList { grid-template-columns: 1fr; }
+}

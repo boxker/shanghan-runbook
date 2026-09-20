@@ -2,10 +2,18 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { channelOrder, clauses } from "@/data/clauses";
+import type { Clause } from "@/lib/content-types";
 
-export default function ClauseExplorer() {
-  const [query, setQuery] = useState("");
+const channelOrder = ["太阳", "阳明", "少阳", "太阴", "少阴", "厥阴"];
+
+export default function ClauseExplorer({
+  clauses,
+  initialQuery = "",
+}: {
+  clauses: Clause[];
+  initialQuery?: string;
+}) {
+  const [query, setQuery] = useState(initialQuery);
   const [channel, setChannel] = useState("全部");
 
   const filtered = useMemo(() => {
@@ -20,11 +28,12 @@ export default function ClauseExplorer() {
         item.plain,
         item.pattern,
         item.formula,
+        item.reviewStatus,
         ...item.keywords,
       ].join(" ").toLowerCase();
       return channelMatch && (!q || text.includes(q));
     });
-  }, [query, channel]);
+  }, [clauses, query, channel]);
 
   return (
     <>
@@ -34,7 +43,7 @@ export default function ClauseExplorer() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="试试：恶寒、汗出、少阳、麻黄汤……"
+            placeholder="试试：恶寒、汗出、小青龙汤、脉沉……"
           />
         </label>
         <div className="filterRow">
@@ -50,7 +59,7 @@ export default function ClauseExplorer() {
         </div>
       </div>
 
-      <div className="resultCount">找到 {filtered.length} 条核心学习条文</div>
+      <div className="resultCount">找到 {filtered.length} 条学习条文</div>
 
       <div className="clauseList">
         {filtered.map((item) => (
@@ -58,6 +67,7 @@ export default function ClauseExplorer() {
             <div className="clauseMeta">
               <span className="clauseNo">#{item.number}</span>
               <span className="tag">{item.channel}</span>
+              <span className="reviewBadge">{item.reviewStatus}</span>
               {item.formula && <span className="relationTag">关联 {item.formula}</span>}
             </div>
             <h2>{item.title}</h2>

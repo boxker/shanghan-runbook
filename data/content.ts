@@ -5,20 +5,12 @@ export type Channel = {
   focus: string;
 };
 
-export type Formula = {
-  name: string;
-  channel: string;
-  summary: string;
-  clues: string[];
-  caution: string;
-};
-
 export const channels: Channel[] = [
   {
     name: "太阳",
     hint: "先理解“病在表”的典型表现",
     signs: ["恶寒或恶风", "发热", "头项强痛", "可能有汗或无汗"],
-    focus: "初学重点：区分有汗与无汗，并理解桂枝汤证、麻黄汤证的不同。"
+    focus: "初学重点：区分有汗与无汗，并理解桂枝汤证、麻黄汤证，以及表不解兼水气等分支。"
   },
   {
     name: "阳明",
@@ -49,64 +41,5 @@ export const channels: Channel[] = [
     hint: "寒热错杂、表现复杂",
     signs: ["厥冷", "消渴等条文表现", "寒热交错", "呕吐或下利等"],
     focus: "建议最后学习，与前五经对照理解，不要简单等同于疾病末期。"
-  }
-];
-
-export const formulas: Formula[] = [
-  {
-    name: "桂枝汤",
-    channel: "太阳",
-    summary: "入门时常用来理解太阳中风类方证。",
-    clues: ["恶风", "发热", "汗出", "头痛等"],
-    caution: "这里只用于学习方证结构，不应据此自行用药。"
-  },
-  {
-    name: "麻黄汤",
-    channel: "太阳",
-    summary: "入门时常与桂枝汤对照，理解“无汗、身痛”等线索。",
-    clues: ["恶寒较明显", "无汗", "身痛", "部分条文见喘"],
-    caution: "麻黄具有明确药理作用和使用风险，不建议自行尝试。"
-  },
-  {
-    name: "葛根汤",
-    channel: "太阳",
-    summary: "常用于学习太阳病兼项背强等线索。",
-    clues: ["项背强", "恶寒发热", "无汗或相关表证线索"],
-    caution: "方证学习不等于个人诊疗建议。"
-  },
-  {
-    name: "小柴胡汤",
-    channel: "少阳",
-    summary: "少阳学习中的核心代表方之一。",
-    clues: ["寒热往来", "胸胁苦满", "不欲饮食", "心烦喜呕"],
-    caution: "实际使用需结合完整病史、体征和专业判断。"
-  },
-  {
-    name: "白虎汤",
-    channel: "阳明",
-    summary: "帮助理解阳明气分热盛的经典学习模型。",
-    clues: ["热盛", "大汗", "口渴等经典线索"],
-    caution: "不要把几个症状机械匹配为处方。"
-  },
-  {
-    name: "五苓散",
-    channel: "太阳相关",
-    summary: "学习水液代谢异常相关条文时常见。",
-    clues: ["口渴", "小便不利等水液失调线索"],
-    caution: "不同疾病都可能出现类似症状，需要现代医学鉴别。"
-  },
-  {
-    name: "麻黄细辛附子汤",
-    channel: "少阴",
-    summary: "用于理解少阴病初起又见发热、脉沉这一类经典分支。",
-    clues: ["少阴病", "始得之", "反发热", "脉沉"],
-    caution: "含附子等药物，存在明确使用风险，只作为经典方证关系学习。"
-  },
-  {
-    name: "四逆汤",
-    channel: "少阴",
-    summary: "少阴寒化与温法学习中常见的代表方。",
-    clues: ["少阴", "脉沉", "寒化", "温法"],
-    caution: "含附子，现实使用需严格专业评估，本站不提供服用建议。"
   }
 ];
